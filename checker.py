@@ -1,10 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from dotenv import load_dotenv
 import os
-import time
-
-load_dotenv()
 
 RESEND_API_KEY = os.getenv("RESEND_API_KEY")
 EMAIL_FROM = os.getenv("EMAIL_FROM")
@@ -12,8 +8,9 @@ EMAIL_TO = os.getenv("EMAIL_TO")
 
 PRODUCTS = {
     "Maplestone": "https://maplestoneornamentals.com/products/shin-deshojo?variant=41617087103072",
-    "MrMaple": "https://mrmaple.com/products/buy-acer-palmatum-shin-deshojo-red-japanese-maple?variant=46355750617315",
+    "MrMaple": "https://mrmaple.com/products/buy-acer-palmatum-shin-deshojo-red-japanese-maple?variant=46355750617315"
 }
+
 def is_in_stock(url):
     res = requests.get(url)
     soup = BeautifulSoup(res.text, 'html.parser')
@@ -23,7 +20,7 @@ def send_email(subject, body):
     res = requests.post(
         "https://api.resend.com/emails",
         headers={
-            "Authorization": f"Bearer {RESEND_API_KEY}",
+            "Authorization": f"Bearer " + RESEND_API_KEY,
             "Content-Type": "application/json"
         },
         json={
@@ -35,7 +32,8 @@ def send_email(subject, body):
     )
     print("✅ Email sent!" if res.status_code == 200 else f"❌ Email failed: {res.text}")
 
-def main():
+def run_check():
+    print("🌱 Checking Shin Deshojo availability...")
     any_in_stock = False
     html_body = "<h3>Shin Deshojo In Stock!</h3><ul>"
 
@@ -54,8 +52,3 @@ def main():
 
     if any_in_stock:
         send_email("🌱 Shin Deshojo Available!", html_body)
-
-if __name__ == "__main__":
-    while True:
-        main()
-        time.sleep(3600)
