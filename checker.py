@@ -36,19 +36,24 @@ def run_check():
     print("🌱 Checking Shin Deshojo availability...")
     any_in_stock = False
     html_body = "<h3>Shin Deshojo In Stock!</h3><ul>"
+    summary_lines = []
 
     for name, url in PRODUCTS.items():
         try:
             if is_in_stock(url):
                 any_in_stock = True
                 html_body += f"<li><a href='{url}'>{name} is in stock</a></li>"
-                print(f"✅ {name} is in stock!")
+                summary_lines.append(f"✅ {name} is in stock")
             else:
-                print(f"❌ {name} is sold out.")
+                summary_lines.append(f"❌ {name} is sold out")
         except Exception as e:
-            print(f"⚠️ Error checking {name}: {e}")
+            summary_lines.append(f"⚠️ Error checking {name}: {str(e)}")
 
     html_body += "</ul>"
 
     if any_in_stock:
         send_email("🌱 Shin Deshojo Available!", html_body)
+
+    result = "\n".join(summary_lines)
+    print(result)
+    return result
