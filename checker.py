@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 import os
+import time
 
 load_dotenv()
 
@@ -55,4 +56,6 @@ def main():
         send_email("🌱 Shin Deshojo Available!", html_body)
 
 if __name__ == "__main__":
-    main()
+    while True:
+        main()
+        time.sleep(3600)
