@@ -4,41 +4,50 @@ import threading
 import time
 import os
 from datetime import datetime
+import requests
 
 app = Flask(__name__)
-check_log = []
+log = []
 
 @app.route("/")
 def home():
-    return "<h2>🌱 Shin Deshojo Checker is running every hour with daily summary!</h2>"
+    """Landing page for the checker."""
+    return "<h2>Shin Deshojo Checker is running every hour with daily summary!</h2>"
 
 @app.route("/check")
 def manual_check():
-    result = run_check()
+    # Run a manual check and log the result
+    results = run_check()
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
-    check_log.append(f"[{timestamp}] Manual Check:\n{result}")
-    return "✅ Manual check complete."
+    log.append(f"[{timestamp}] Manual Check:\n{results}")
+    return "Manual check complete."
 
 def hourly_checker():
     while True:
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
-        print(f"🔁 Hourly check at {timestamp}")
-        result = run_check()
-        check_log.append(f"[{timestamp}]\n{result}")
+        try:
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+            print(f"Hourly check at {timestamp}")
+            results = run_check()
+            log.append(f"[{timestamp}]\n{results}")
+        except Exception as e:
+            print(f"Hourly check failed: {e}")
         time.sleep(3600)
 
 def daily_summary():
     while True:
         now = datetime.now()
         if now.hour == 7 and now.minute == 0:
-            print("📬 Sending daily summary...")
-            summary = "<h3>🌿 Daily Shin Deshojo Summary</h3><pre>" + "\n\n".join(check_log[-24:]) + "</pre>"
-            send_email("🌿 Daily Maple Stock Summary", summary)
+            try:
+                print("Sending daily summary...")
+                summary = "<h3>Daily Shin Deshojo Summary</h3><pre>" + "\n\n".join(log[-24:]) + "</pre>"
+                send_email("Daily Maple Stock Summary", summary)
+            except Exception as e:
+                print(f"Failed to send daily summary: {e}")
             time.sleep(60)
         time.sleep(30)
 
 def send_email(subject, body):
-    import requests
+    """Send an email using the Resend API."""
     headers = {
         "Authorization": f"Bearer {os.environ.get('RESEND_API_KEY')}",
         "Content-Type": "application/json"
@@ -50,9 +59,13 @@ def send_email(subject, body):
         "html": f"<pre>{body}</pre>"
     }
     res = requests.post("https://api.resend.com/emails", headers=headers, json=data)
-    print("✅ Daily email sent!" if res.status_code == 200 else f"❌ Email failed: {res.text}")
+    if res.status_code == 200:
+        print("Daily email sent!")
+    else:
+        print(f"Email failed: {res.text}")
 
 if __name__ == "__main__":
+    # Start background threads for hourly and daily checks
     threading.Thread(target=hourly_checker, daemon=True).start()
     threading.Thread(target=daily_summary, daemon=True).start()
 
