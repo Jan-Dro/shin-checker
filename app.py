@@ -5,6 +5,7 @@ import time
 import os
 from datetime import datetime
 import requests
+import pytz
 
 app = Flask(__name__)
 log = []
@@ -34,9 +35,10 @@ def hourly_checker():
         time.sleep(3600)
 
 def daily_summary():
+    cst = pytz.timezone("America/Chicago")
     while True:
-        now = datetime.now()
-        if now.hour == 7 and now.minute == 0:
+        now = datetime.now(cst)
+        if (now.hour == 8 or now.hour == 20) and now.minute == 0:
             try:
                 print("Sending daily summary...")
                 summary = "<h3>Daily Shin Deshojo Summary</h3><pre>" + "\n\n".join(log[-24:]) + "</pre>"
