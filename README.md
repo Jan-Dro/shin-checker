@@ -9,7 +9,6 @@ there’s also a /check endpoint if i want to trigger a check manually.
 email notifications are handled through resend. super lightweight, no db or anything.
 
 ---
-<img width="780" height="322" alt="image" src="https://github.com/user-attachments/assets/ef6f82dc-a55b-44e0-8365-c93f38fac9ff" />
 <img width="780" height="900" alt="Untitled diagram-2025-10-25-202151" src="https://github.com/user-attachments/assets/56c7fb7b-00d9-4090-8b2e-a6094699ddf1" />
 
 
